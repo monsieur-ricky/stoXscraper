@@ -1,0 +1,298 @@
+[
+    {
+        "exchangeCode": "NYSE",
+        "exchangeName": "New York Stock Exchange",
+        "country": "United States",
+        "currencyCode": "USD",
+        "currencyName": "US Dollar",
+        "exchangeCity": "New York"
+    },
+    {
+        "exchangeCode": "NASDAQ",
+        "exchangeName": "NASDAQ Stock Market",
+        "country": "United States",
+        "currencyCode": "USD",
+        "currencyName": "US Dollar",
+        "exchangeCity": "New York"
+    },
+    {
+        "exchangeCode": "LSE",
+        "exchangeName": "London Stock Exchange",
+        "country": "United Kingdom",
+        "currencyCode": "GBP",
+        "currencyName": "Pound Sterling",
+        "exchangeCity": "London"
+    },
+    {
+        "exchangeCode": "JPX",
+        "exchangeName": "Japan Exchange Group (Tokyo Stock Exchange)",
+        "country": "Japan",
+        "currencyCode": "JPY",
+        "currencyName": "Japanese Yen",
+        "exchangeCity": "Tokyo"
+    },
+    {
+        "exchangeCode": "SSE",
+        "exchangeName": "Shanghai Stock Exchange",
+        "country": "China",
+        "currencyCode": "CNY",
+        "currencyName": "Chinese Yuan",
+        "exchangeCity": "Shanghai"
+    },
+    {
+        "exchangeCode": "HKEX",
+        "exchangeName": "Hong Kong Stock Exchange",
+        "country": "Hong Kong",
+        "currencyCode": "HKD",
+        "currencyName": "Hong Kong Dollar",
+        "exchangeCity": "Hong Kong"
+    },
+    {
+        "exchangeCode": "Euronext",
+        "exchangeName": "Euronext",
+        "country": "Multi-country (EU)",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Multiple Cities"
+    },
+    {
+        "exchangeCode": "CAC",
+        "exchangeName": "Paris Bourse (Paris Stock Exchange)",
+        "country": "France",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Paris"
+    },
+    {
+        "exchangeCode": "AEX",
+        "exchangeName": "Amsterdam Stock Exchange",
+        "country": "Netherlands",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Amsterdam"
+    },
+    {
+        "exchangeCode": "BEL20",
+        "exchangeName": "Brussels Stock Exchange",
+        "country": "Belgium",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Brussels"
+    },
+    {
+        "exchangeCode": "PSI20",
+        "exchangeName": "Lisbon Stock Exchange",
+        "country": "Portugal",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Lisbon"
+    },
+    {
+        "exchangeCode": "IBEX35",
+        "exchangeName": "Bolsa de Madrid",
+        "country": "Spain",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Madrid"
+    },
+    {
+        "exchangeCode": "OMX",
+        "exchangeName": "Nasdaq Stockholm",
+        "country": "Sweden",
+        "currencyCode": "SEK",
+        "currencyName": "Swedish Krona",
+        "exchangeCity": "Stockholm"
+    },
+    {
+        "exchangeCode": "OMXH25",
+        "exchangeName": "Nasdaq Copenhagen",
+        "country": "Denmark",
+        "currencyCode": "DKK",
+        "currencyName": "Danish Krone",
+        "exchangeCity": "Copenhagen"
+    },
+    {
+        "exchangeCode": "OMXNO",
+        "exchangeName": "Oslo Børs",
+        "country": "Norway",
+        "currencyCode": "NOK",
+        "currencyName": "Norwegian Krone",
+        "exchangeCity": "Oslo"
+    },
+    {
+        "exchangeCode": "SIX",
+        "exchangeName": "SIX Swiss Exchange",
+        "country": "Switzerland",
+        "currencyCode": "CHF",
+        "currencyName": "Swiss Franc",
+        "exchangeCity": "Zurich"
+    },
+    {
+        "exchangeCode": "FWB",
+        "exchangeName": "Frankfurt Stock Exchange",
+        "country": "Germany",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Frankfurt"
+    },
+    {
+        "exchangeCode": "VIE",
+        "exchangeName": "Vienna Stock Exchange",
+        "country": "Austria",
+        "currencyCode": "EUR",
+        "currencyName": "Euro",
+        "exchangeCity": "Vienna"
+    },
+    {
+        "exchangeCode": "BSE",
+        "exchangeName": "Bursa İstanbul",
+        "country": "Turkey",
+        "currencyCode": "TRY",
+        "currencyName": "Turkish Lira",
+        "exchangeCity": "Istanbul"
+    },
+    {
+        "exchangeCode": "Warsaw Stock Exchange",
+        "exchangeName": "Warsaw Stock Exchange",
+        "country": "Poland",
+        "currencyCode": "PLN",
+        "currencyName": "Polish Zloty",
+        "exchangeCity": "Warsaw"
+    },
+    {
+        "exchangeCode": "PRAGUE",
+        "exchangeName": "Prague Stock Exchange",
+        "country": "Czech Republic",
+        "currencyCode": "CZK",
+        "currencyName": "Czech Koruna",
+        "exchangeCity": "Prague"
+    },
+    {
+        "exchangeCode": "TSX",
+        "exchangeName": "Toronto Stock Exchange",
+        "country": "Canada",
+        "currencyCode": "CAD",
+        "currencyName": "Canadian Dollar",
+        "exchangeCity": "Toronto"
+    },
+    {
+        "exchangeCode": "ASX",
+        "exchangeName": "Australian Securities Exchange",
+        "country": "Australia",
+        "currencyCode": "AUD",
+        "currencyName": "Australian Dollar",
+        "exchangeCity": "Sydney"
+    },
+    {
+        "exchangeCode": "BSE",
+        "exchangeName": "Bombay Stock Exchange",
+        "country": "India",
+        "currencyCode": "INR",
+        "currencyName": "Indian Rupee",
+        "exchangeCity": "Mumbai"
+    },
+    {
+        "exchangeCode": "NSE",
+        "exchangeName": "National Stock Exchange of India",
+        "country": "India",
+        "currencyCode": "INR",
+        "currencyName": "Indian Rupee",
+        "exchangeCity": "Mumbai"
+    },
+    {
+        "exchangeCode": "KRX",
+        "exchangeName": "Korea Exchange",
+        "country": "South Korea",
+        "currencyCode": "KRW",
+        "currencyName": "South Korean Won",
+        "exchangeCity": "Seoul"
+    },
+    {
+        "exchangeCode": "SIX",
+        "exchangeName": "Swiss Exchange",
+        "country": "Switzerland",
+        "currencyCode": "CHF",
+        "currencyName": "Swiss Franc",
+        "exchangeCity": "Zurich"
+    },
+    {
+        "exchangeCode": "B3",
+        "exchangeName": "Brasil Bolsa Balcão (BM&FBOVESPA)",
+        "country": "Brazil",
+        "currencyCode": "BRL",
+        "currencyName": "Brazilian Real",
+        "exchangeCity": "São Paulo"
+    },
+    {
+        "exchangeCode": "MOEX",
+        "exchangeName": "Moscow Exchange (MICEX/RTS)",
+        "country": "Russia",
+        "currencyCode": "RUB",
+        "currencyName": "Russian Ruble",
+        "exchangeCity": "Moscow"
+    },
+    {
+        "exchangeCode": "JSE",
+        "exchangeName": "Johannesburg Stock Exchange",
+        "country": "South Africa",
+        "currencyCode": "ZAR",
+        "currencyName": "South African Rand",
+        "exchangeCity": "Johannesburg"
+    },
+    {
+        "exchangeCode": "SGX",
+        "exchangeName": "Singapore Exchange",
+        "country": "Singapore",
+        "currencyCode": "SGD",
+        "currencyName": "Singapore Dollar",
+        "exchangeCity": "Singapore"
+    },
+    {
+        "exchangeCode": "NZX",
+        "exchangeName": "New Zealand Exchange",
+        "country": "New Zealand",
+        "currencyCode": "NZD",
+        "currencyName": "New Zealand Dollar",
+        "exchangeCity": "Wellington"
+    },
+    {
+        "exchangeCode": "IDX",
+        "exchangeName": "Indonesia Stock Exchange",
+        "country": "Indonesia",
+        "currencyCode": "IDR",
+        "currencyName": "Indonesian Rupiah",
+        "exchangeCity": "Jakarta"
+    },
+    {
+        "exchangeCode": "TASE",
+        "exchangeName": "Tel Aviv Stock Exchange",
+        "country": "Israel",
+        "currencyCode": "ILS",
+        "currencyName": "Israeli Shekel",
+        "exchangeCity": "Tel Aviv"
+    },
+    {
+        "exchangeCode": "BOVESPA",
+        "exchangeName": "B3 - Brasil Bolsa Balcão",
+        "country": "Brazil",
+        "currencyCode": "BRL",
+        "currencyName": "Brazilian Real",
+        "exchangeCity": "São Paulo"
+    },
+    {
+        "exchangeCode": "MSCI",
+        "exchangeName": "MSCI Index",
+        "country": "Global",
+        "currencyCode": "USD",
+        "currencyName": "US Dollar",
+        "exchangeCity": "Multiple Cities"
+    },
+    {
+        "exchangeCode": "FTSE",
+        "exchangeName": "FTSE Index",
+        "country": "Global",
+        "currencyCode": "USD",
+        "currencyName": "US Dollar",
+        "exchangeCity": "Multiple Cities"
+    }
+]
