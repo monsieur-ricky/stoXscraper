@@ -7,6 +7,7 @@ import { Profile } from './entities/profile.entity';
 
 import * as EXCHANGE_INFO from '../assets/data/exchange-info.json';
 import * as cheerio from 'cheerio';
+import { MetalQuote } from './entities/metal-quote.entity';
 
 type ExchangeInfo = {
   exchangeCode: string;
@@ -18,12 +19,13 @@ type ExchangeInfo = {
 };
 
 @Injectable()
-export class SymbolService {
+export class AssetService {
   private readonly yahooFinanceDomain = 'finance.yahoo.com';
   private readonly searchUrl = `https://query2.${this.yahooFinanceDomain}/v1/finance/search`;
   private readonly quoteUrl = `https://query1.${this.yahooFinanceDomain}/v7/finance/quote?symbols`;
   private readonly profileUrl = `https://${this.yahooFinanceDomain}/quote/`;
   private readonly crumbUrl = `https://query1.${this.yahooFinanceDomain}/v1/test/getcrumb`;
+  private readonly metalQuoteUrl = 'https://www.veracash.com';
   private readonly headers = {
     headers: {
       'User-Agent': process.env.YAHOO_USER_AGENT,
@@ -58,6 +60,14 @@ export class SymbolService {
 
     return {
       ...quote,
+    };
+  }
+
+  async getMetalQuote(metal: string): Promise<MetalQuote> {
+    const metalQuote = await this.getMetalQuoteInfo(metal);
+
+    return {
+      ...metalQuote,
     };
   }
 
@@ -147,6 +157,95 @@ export class SymbolService {
       regularMarketDayLow: quote?.regularMarketDayLow,
       name: quote?.shortName,
       exchangeShortName: quote?.fullExchangeName,
+    };
+  }
+
+  private async getMetalQuoteInfo(metal: string): Promise<MetalQuote> {
+    const metalQuoteUrl = `${this.metalQuoteUrl}/${metal}-price-and-chart/`;
+    const response = await firstValueFrom(this.httpService.get(metalQuoteUrl));
+
+    const $ = cheerio.load(response?.data, { xmlMode: false });
+
+    const ounceQuote =
+      metal === 'gold'
+        ? this.getGoldOunceQuote($)
+        : this.getSilverOunceQuote($);
+
+    const { pricePerOunceEuro, pricePerOunceDollar, pricePerOuncePound } =
+      ounceQuote;
+
+    const troyOzToGram = 31.1035; // 1 troy ounce = 31.1035 grams
+    const pricePerGramDollar =
+      Math.round((pricePerOunceDollar / troyOzToGram + Number.EPSILON) * 100) /
+      100;
+    const pricePerGramEuro =
+      Math.round((pricePerOunceEuro / troyOzToGram + Number.EPSILON) * 100) /
+      100;
+    const pricePerGramPound =
+      Math.round((pricePerOuncePound / troyOzToGram + Number.EPSILON) * 100) /
+      100;
+
+    return {
+      metal,
+      pricePerOunceDollar,
+      pricePerOunceEuro,
+      pricePerOuncePound,
+      pricePerGramDollar,
+      pricePerGramEuro,
+      pricePerGramPound,
+    };
+  }
+
+  private getGoldOunceQuote($: cheerio.Root): MetalQuote {
+    const tableRow = $(`table tr td:contains("Gold Price per Ounce")`).parent();
+    const pricePerOunceEuro = Number(
+      tableRow.find('td:nth-child(2)').first().text().replace('€', ''),
+    );
+    const pricePerOunceDollar = Number(
+      tableRow.find('td:nth-child(3)').first().text().replace('$', ''),
+    );
+    const pricePerOuncePound = Number(
+      tableRow.find('td:nth-child(4)').first().text().replace('£', ''),
+    );
+
+    return {
+      metal: 'gold',
+      pricePerOunceDollar,
+      pricePerOunceEuro,
+      pricePerOuncePound,
+    };
+  }
+
+  private getSilverOunceQuote($: cheerio.Root): MetalQuote {
+    const tables = $('table');
+    const prices = [];
+
+    tables.each((index, element) => {
+      if (index < 3) {
+        const tableRow = $(element)
+          .find(`tr td:contains("Silver Ounce (1oz)")`)
+          .parent();
+
+        const value = tableRow
+          .find('td:nth-child(2)')
+          .first()
+          .text()
+          .substring(1);
+
+        prices.push(Number(value));
+      }
+    });
+
+    // [pricePerOunceEuro, pricePerOunceDollar, pricePerOuncePound]
+    const pricePerOunceEuro = prices[0] ?? 0;
+    const pricePerOunceDollar = prices[1] ?? 0;
+    const pricePerOuncePound = prices[2] ?? 0;
+
+    return {
+      metal: 'silver',
+      pricePerOunceDollar,
+      pricePerOunceEuro,
+      pricePerOuncePound,
     };
   }
 }

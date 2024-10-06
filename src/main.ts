@@ -5,11 +5,13 @@ import { ApiKeyMiddleware } from './middleware/api-key.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const port = process.env.PORT || 10000;
 
   app.enableCors();
-  app.use(new DomainRestrictionMiddleware().use);
-  app.use(new ApiKeyMiddleware().use);
+  // Uncomment the following lines to enable the middlewares
+  // app.use(new DomainRestrictionMiddleware().use);
+  // app.use(new ApiKeyMiddleware().use);
 
-  await app.listen(3000);
+  await app.listen(port);
 }
 bootstrap();

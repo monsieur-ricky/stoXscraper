@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SymbolController } from './symbol.controller';
-import { SymbolService } from './symbol.service';
+import { AssetController } from './asset.controller';
+import { AssetService } from './asset.service';
 import { HttpModule } from '@nestjs/axios';
 
-describe('SymbolController', () => {
-  let controller: SymbolController;
+describe('AssetController', () => {
+  let controller: AssetController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [SymbolController],
-      providers: [SymbolService],
+      controllers: [AssetController],
+      providers: [AssetService],
       imports: [HttpModule],
     }).compile();
 
-    controller = module.get<SymbolController>(SymbolController);
+    controller = module.get<AssetController>(AssetController);
   });
 
   it('should be defined', () => {
