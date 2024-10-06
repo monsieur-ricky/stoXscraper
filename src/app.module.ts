@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SymbolModule } from './symbol/symbol.module';
+import { AssetModule } from './asset/asset.module';
 import { ConfigModule } from '@nestjs/config';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -13,7 +13,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       ttl: Number(process.env.CACHE_TTL) ?? 60000,
       isGlobal: true,
     }),
-    SymbolModule,
+    AssetModule,
   ],
   controllers: [AppController],
   providers: [

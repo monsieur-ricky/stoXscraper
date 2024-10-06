@@ -1,9 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { SymbolService } from './symbol.service';
+import { AssetService } from './asset.service';
 
-@Controller('symbol')
-export class SymbolController {
-  constructor(private readonly symbolService: SymbolService) {}
+@Controller('asset')
+export class AssetController {
+  constructor(private readonly symbolService: AssetService) {}
 
   @Get('search/:term')
   async search(@Param('term') term: string) {
@@ -18,5 +18,10 @@ export class SymbolController {
   @Get('profile/:symbol')
   async details(@Param('symbol') symbol: string) {
     return await this.symbolService.getProfile(symbol);
+  }
+
+  @Get('quote/metal/:metal')
+  async metalQuote(@Param('metal') metal: string) {
+    return await this.symbolService.getMetalQuote(metal);
   }
 }

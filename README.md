@@ -90,7 +90,7 @@ Example Response:
 
 ## API Endpoints
 
-### `/symbol/quote/{symbol}`
+### `/asset/quote/{symbol}`
 
 - **Description**: Fetches the current price information about an asset using its ticker symbol.
 - **Method**: `GET`
@@ -98,7 +98,7 @@ Example Response:
   - `symbol`: The stock ticker symbol (e.g., AAPL for Apple).
 - **Response**: A JSON object containing stock information such as price, change value, currency, etc.
 
-### `/symbol/search/{term}`
+### `/asset/search/{term}`
 
 - **Description**: Searches assets based on the term.
 - **Method**: `GET`
@@ -106,12 +106,20 @@ Example Response:
   - `term`: Apple
 - **Response**: A JSON array containing asset names and ticker symbols.
 
-### `/symbol/profile/{symbol}`
+### `/asset/profile/{symbol}`
 
 - **Description**: Fetches detailed information for a specific financial asset.
 - **Method**: `GET`
 - **Params**:
   - `symbol`: The stock ticker symbol (e.g., AAPL for Apple).
+- **Response**: A JSON object containing detailed information about the asset.
+
+### `/asset/quote/metal/{metal}`
+
+- **Description**: Fetches detailed information for a specific metal asset (only Gold or Silver).
+- **Method**: `GET`
+- **Params**:
+  - `metal`: The metal name (e.g., gold or silver).
 - **Response**: A JSON object containing detailed information about the asset.
 
 ## Configuration
