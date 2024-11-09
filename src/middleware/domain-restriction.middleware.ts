@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
 export class DomainRestrictionMiddleware implements NestMiddleware {
-  private readonly allowedDomains = ['blacklambs.net', 'localhost'];
+  private readonly allowedDomains = ['your-domain.com', 'localhost'];
 
   use = (req: Request, res: Response, next: NextFunction) => {
     const origin = req.headers.origin || req.headers.referer;
