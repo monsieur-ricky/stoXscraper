@@ -199,13 +199,17 @@ export class AssetService {
   private getGoldOunceQuote($: cheerio.Root): MetalQuote {
     const tableRow = $(`table tr td:contains("Gold Price per Ounce")`).parent();
     const pricePerOunceEuro = Number(
-      tableRow.find('td:nth-child(2)').first().text().replace('€', ''),
+      tableRow.find('td:nth-child(2)').first().text().replace(/[€,]/g, ''),
     );
     const pricePerOunceDollar = Number(
-      tableRow.find('td:nth-child(3)').first().text().replace('$', ''),
+      tableRow
+        .find('td:nth-child(3)')
+        .first()
+        .text()
+        .replace(/[US$,]/g, ''),
     );
     const pricePerOuncePound = Number(
-      tableRow.find('td:nth-child(4)').first().text().replace('£', ''),
+      tableRow.find('td:nth-child(4)').first().text().replace(/[£,]/g, ''),
     );
 
     return {
@@ -217,29 +221,20 @@ export class AssetService {
   }
 
   private getSilverOunceQuote($: cheerio.Root): MetalQuote {
-    const tables = $('table');
-    const prices = [];
-
-    tables.each((index, element) => {
-      if (index < 3) {
-        const tableRow = $(element)
-          .find(`tr td:contains("Silver Ounce (1oz)")`)
-          .parent();
-
-        const value = tableRow
-          .find('td:nth-child(2)')
-          .first()
-          .text()
-          .substring(1);
-
-        prices.push(Number(value));
-      }
-    });
-
-    // [pricePerOunceEuro, pricePerOunceDollar, pricePerOuncePound]
-    const pricePerOunceEuro = prices[0] ?? 0;
-    const pricePerOunceDollar = prices[1] ?? 0;
-    const pricePerOuncePound = prices[2] ?? 0;
+    const tableRow = $(`table tr td:contains("Silver Ounce(1oz)")`).parent();
+    const pricePerOunceEuro = Number(
+      tableRow.find('td:nth-child(2)').first().text().replace(/[€,]/g, ''),
+    );
+    const pricePerOunceDollar = Number(
+      tableRow
+        .find('td:nth-child(3)')
+        .first()
+        .text()
+        .replace(/[US$,]/g, ''),
+    );
+    const pricePerOuncePound = Number(
+      tableRow.find('td:nth-child(4)').first().text().replace(/[£,]/g, ''),
+    );
 
     return {
       metal: 'silver',
