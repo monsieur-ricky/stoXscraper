@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { Symbol } from './entities/symbol.entity';
@@ -8,6 +8,7 @@ import { Profile } from './entities/profile.entity';
 import * as EXCHANGE_INFO from '../assets/data/exchange-info.json';
 import * as cheerio from 'cheerio';
 import { MetalQuote } from './entities/metal-quote.entity';
+import { PlaywrightService } from '../utilities/playwright.service';
 
 type ExchangeInfo = {
   exchangeCode: string;
@@ -26,19 +27,21 @@ export class AssetService {
   private readonly profileUrl = `https://${this.yahooFinanceDomain}/quote/`;
   private readonly crumbUrl = `https://query1.${this.yahooFinanceDomain}/v1/test/getcrumb`;
   private readonly metalQuoteUrl = 'https://www.veracash.com';
-  private readonly headers = {
-    headers: {
-      'User-Agent': process.env.YAHOO_USER_AGENT,
-      Cookie: process.env.YAHOO_COOKIE,
-    },
-  };
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly playwrightService: PlaywrightService,
+  ) {}
 
   async search(term: string): Promise<Symbol[]> {
     const url = `${this.searchUrl}?q=${term}`;
-    const response = await firstValueFrom(this.httpService.get(url));
-    const quotes: any[] = response?.data?.quotes ?? [];
+
+    const response = await this.fetchDataWithBrowser(url);
+
+    const $ = cheerio.load(response, { xmlMode: false });
+    const data = $('pre').text().trim();
+    const quotes: any[] = JSON.parse(data)?.quotes ?? [];
+
     const symbols: Symbol[] = quotes.map((quote) => {
       const exchangeInfo = this.getExchangeInfo(quote?.exchDisp);
 
@@ -91,16 +94,10 @@ export class AssetService {
   }
 
   private async getProfileInfo(symbol: string): Promise<Profile> {
-    const response = await firstValueFrom(
-      this.httpService.get(`${this.profileUrl}${symbol}/profile/`, {
-        headers: {
-          ...this.headers.headers,
-          Referer: 'https://finance.yahoo.com/quote/AAPL/',
-        },
-      }),
-    );
+    const url = `${this.profileUrl}${symbol}/profile/`;
+    const response = await this.fetchDataWithBrowser(url);
 
-    const $ = cheerio.load(response?.data, { xmlMode: false });
+    const $ = cheerio.load(response, { xmlMode: false });
     const description = $('[data-testid="description"] > p').text();
     const sector = $('dt:contains("Sector:")').next().text().trim();
     const industry = $('dt:contains("Industry:")').next().text().trim();
@@ -126,21 +123,23 @@ export class AssetService {
   }
 
   private async getCrumb(): Promise<string> {
-    const crumbResponse = await firstValueFrom(
-      this.httpService.get(this.crumbUrl, this.headers),
-    );
+    const response = await this.fetchDataWithBrowser(this.crumbUrl);
 
-    return crumbResponse?.data;
+    const $ = cheerio.load(response, { xmlMode: false });
+    const crumb = $('pre').text().trim();
+
+    return crumb;
   }
 
   private async getQuoteInfo(symbol: string): Promise<Quote & Symbol> {
     const crumb = await this.getCrumb();
-    const quoteUrl = `${this.quoteUrl}=${symbol}&crumb=${crumb}`;
-    const response = await firstValueFrom(
-      this.httpService.get(quoteUrl, this.headers),
-    );
+    const url = `${this.quoteUrl}=${symbol}&crumb=${crumb}`;
 
-    const quote = response?.data?.quoteResponse?.result[0];
+    const response = await this.fetchDataWithBrowser(url);
+
+    const $ = cheerio.load(response, { xmlMode: false });
+    const data = $('pre').text().trim();
+    const quote = JSON.parse(data)?.quoteResponse?.result[0];
 
     return {
       symbol,
@@ -242,5 +241,15 @@ export class AssetService {
       pricePerOunceEuro,
       pricePerOuncePound,
     };
+  }
+
+  private async fetchDataWithBrowser(url: string): Promise<string> {
+    try {
+      const data = await this.playwrightService.makeBrowserRequest(url);
+      return data;
+    } catch (error) {
+      Logger.error(`Browser request failed for URL: ${url}`, error);
+      throw error;
+    }
   }
 }

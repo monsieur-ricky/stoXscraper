@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AssetController } from './asset.controller';
 import { AssetService } from './asset.service';
 import { HttpModule } from '@nestjs/axios';
+import { PlaywrightService } from '../utilities/playwright.service';
 
 describe('AssetController', () => {
   let controller: AssetController;
@@ -9,7 +10,7 @@ describe('AssetController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AssetController],
-      providers: [AssetService],
+      providers: [AssetService, PlaywrightService],
       imports: [HttpModule],
     }).compile();
 
