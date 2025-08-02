@@ -195,7 +195,7 @@ export class AssetService {
     };
   }
 
-  private getGoldOunceQuote($: cheerio.Root): MetalQuote {
+  private getGoldOunceQuote($: cheerio.CheerioAPI): MetalQuote {
     const tableRow = $(`table tr td:contains("Gold Price per Ounce")`).parent();
     const pricePerOunceEuro = Number(
       tableRow.find('td:nth-child(2)').first().text().replace(/[€,]/g, ''),
@@ -219,7 +219,7 @@ export class AssetService {
     };
   }
 
-  private getSilverOunceQuote($: cheerio.Root): MetalQuote {
+  private getSilverOunceQuote($: cheerio.CheerioAPI): MetalQuote {
     const tableRow = $(`table tr td:contains("Silver Ounce(1oz)")`).parent();
     const pricePerOunceEuro = Number(
       tableRow.find('td:nth-child(2)').first().text().replace(/[€,]/g, ''),
