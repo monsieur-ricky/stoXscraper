@@ -5,10 +5,10 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start --exec 'node --max-http-header-size=80000'",
+    "start": "sudo npx playwright install-deps chromium && npx ts-node playwright-cookie-setup.ts && nest start --exec 'node --max-http-header-size=80000'",
     "start:dev": "npx playwright install chromium && npx ts-node playwright-cookie-setup.ts && nest start --watch --exec 'node --max-http-header-size=80000'",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "npx playwright install chromium && npx ts-node playwright-cookie-setup.ts && node dist/start",
+    "start:prod": "sudo npx playwright install-deps chromium && npx ts-node playwright-cookie-setup.ts && node dist/start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
