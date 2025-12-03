@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 import { Symbol } from './entities/symbol.entity';
 import { Quote } from './entities/quote.entity';
 import { Profile } from './entities/profile.entity';
@@ -9,6 +8,7 @@ import * as EXCHANGE_INFO from '../assets/data/exchange-info.json';
 import * as cheerio from 'cheerio';
 import { MetalQuote } from './entities/metal-quote.entity';
 import { PlaywrightService } from '../utilities/playwright.service';
+import { RequestOptions } from './entities/request-options.entity';
 
 type ExchangeInfo = {
   exchangeCode: string;
@@ -161,9 +161,12 @@ export class AssetService {
 
   private async getMetalQuoteInfo(metal: string): Promise<MetalQuote> {
     const metalQuoteUrl = `${this.metalQuoteUrl}/${metal}-price-and-chart/`;
-    const response = await firstValueFrom(this.httpService.get(metalQuoteUrl));
+    const response = await this.fetchDataWithBrowser(metalQuoteUrl, {
+      useSavedCookies: false,
+      waitForSelector: '.wpb_wrapper',
+    });
 
-    const $ = cheerio.load(response?.data, { xmlMode: false });
+    const $ = cheerio.load(response, { xmlMode: false });
 
     const ounceQuote =
       metal === 'gold'
@@ -243,9 +246,15 @@ export class AssetService {
     };
   }
 
-  private async fetchDataWithBrowser(url: string): Promise<string> {
+  private async fetchDataWithBrowser(
+    url: string,
+    options?: RequestOptions,
+  ): Promise<string> {
     try {
-      const data = await this.playwrightService.makeBrowserRequest(url);
+      const data = await this.playwrightService.makeBrowserRequest(
+        url,
+        options,
+      );
       return data;
     } catch (error) {
       Logger.error(`Browser request failed for URL: ${url}`, error);
