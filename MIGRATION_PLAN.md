@@ -32,7 +32,7 @@ Status: COMPLETE. Branch: `improvements/update-project`. PR: [#12](https://githu
 
 ## Task 2 — Upgrade framework, dependencies, and runtime
 
-Status: COMPLETE. Branch: `improvements/update-project-dependencies` (stacked on task 1). PR: ready to publish.
+Status: COMPLETE. Branch: `improvements/update-project-dependencies` (stacked on task 1). PR: [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13).
 
 - [x] Upgrade Nest runtime/CLI/testing and all retained packages to current compatible stable versions; regenerate lockfile without forced peer overrides.
 - [x] Remove unused Axios/HTTP and mapped-types dependencies and redundant Cheerio type stub; add declared cache peers as needed.
