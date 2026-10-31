@@ -43,7 +43,7 @@ Status: COMPLETE. Branch: `improvements/update-project-dependencies` (stacked on
 
 ## Task 3 — Harden migrated behavior with testing-trophy coverage
 
-Status: COMPLETE. Branch: `improvements/update-project-regressions` (stacked on task 2). PR: ready to publish.
+Status: COMPLETE. Branch: `improvements/update-project-regressions` (stacked on task 2). PR: [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14).
 
 - [x] Validate cache configuration and upstream data; encode URL inputs and reject unsupported metals without changing valid endpoint responses.
 - [x] Guarantee browser/context cleanup on success/failure and test lifecycle, cookies, and selector behavior.
