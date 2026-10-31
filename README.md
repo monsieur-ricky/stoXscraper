@@ -6,7 +6,6 @@ This is a personal open-source project that was created to serve another project
 
 **Important Note: This API relies on web scraping, which can be fragile and prone to breaking as websites change their structure. I recommend considering official financial data APIs from established providers for production use.**
 
-
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
@@ -21,42 +20,41 @@ This is a personal open-source project that was created to serve another project
 ## Prerequisites
 
 This project was created using [NestJS](https://nestjs.com) therefore make sure that [NodeJS](https://nodejs.org/en) (version >= 16) is installed on your operating system.
- 
 
 ## Installation
 
 1. Clone the repository:
 
-    ```bash
-    git clone git@github.com:monsieur-ricky/stoXscraper.git
-    ```
+   ```bash
+   git clone git@github.com:monsieur-ricky/stoXscraper.git
+   ```
 
 2. Navigate to the project directory:
 
-    ```bash
-    cd stoXscraper
-    ```
+   ```bash
+   cd stoXscraper
+   ```
 
 3. Install the dependencies:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 4. Set up your environment variables (see [Configuration](#configuration)).
 
 5. Run the application:
 
-    ```bash
-    # development
-    $ npm run start
+   ```bash
+   # development
+   $ npm run start
 
-    # watch mode
-    $ npm run start:dev
+   # watch mode
+   $ npm run start:dev
 
-    # production mode
-    $ npm run start:prod
-    ```
+   # production mode
+   $ npm run start:prod
+   ```
 
 6. The API should now be running at `http://localhost:3000`.
 
@@ -72,19 +70,19 @@ Example Response:
 
 ```json
 {
-    "symbol": "SYM",
-    "currency": "USD",
-    "price": 0,
-    "changeValue": 0,
-    "changePercent": 0,
-    "fiftyDayAverage": 0,
-    "fiftyTwoWeekHigh": 0,
-    "fiftyTwoWeekLow": 0,
-    "trailingAnnualDividendRate": 0,
-    "regularMarketDayHigh": 0,
-    "regularMarketDayLow": 0,
-    "name": "Symbol, Inc.",
-    "exchangeShortName": "Nasdaq"
+  "symbol": "SYM",
+  "currency": "USD",
+  "price": 0,
+  "changeValue": 0,
+  "changePercent": 0,
+  "fiftyDayAverage": 0,
+  "fiftyTwoWeekHigh": 0,
+  "fiftyTwoWeekLow": 0,
+  "trailingAnnualDividendRate": 0,
+  "regularMarketDayHigh": 0,
+  "regularMarketDayLow": 0,
+  "name": "Symbol, Inc.",
+  "exchangeShortName": "Nasdaq"
 }
 ```
 
@@ -147,13 +145,13 @@ API_KEY='your-api-key'
 
 - **NestJS**: A progressive Node.js framework for building efficient and scalable server-side applications.
 - **Cheerio**: A jQuery-like library for DOM manipulation to parse and extract data from HTML.
-  
+
 You can view the full list of dependencies in the `package.json` file.
 
 ## Contributing
 
 Contributions are welcome! If you'd like to improve **stoXscraper**, feel free to open a pull request or submit an issue.
 
-
 ---
+
 Happy financial scraping with **stoXscraper**!
