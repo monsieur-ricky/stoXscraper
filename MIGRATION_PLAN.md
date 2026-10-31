@@ -53,12 +53,12 @@ Status: COMPLETE. Branch: `improvements/update-project-regressions` (stacked on 
 
 ## Task 4 — CI, contributor docs, and migration handoff
 
-Status: PENDING. Branch: `improvements/update-project-ci` (stacked on task 3). PR: pending.
+Status: IN PROGRESS. Branch: `improvements/update-project-ci` (stacked on task 3). PR: pending.
 
-- [ ] Add GitHub Actions for reproducible install, static checks, build, coverage and production dependency audit; no live scraping or E2E.
-- [ ] Update README, environment example, testing strategy and upgrade/rollback instructions to match actual scripts and behavior.
-- [ ] Add dependency maintenance automation and verify configuration.
-- [ ] Run final clean-install gates, audit/outdated review, production smoke; record exact results, version exceptions, and external-service limitations.
+- [x] Add GitHub Actions for reproducible install, static checks, build, coverage and production dependency audit; no live scraping or E2E.
+- [x] Update README, environment example, testing strategy and upgrade/rollback instructions to match actual scripts and behavior.
+- [x] Add dependency maintenance automation and verify configuration.
+- [x] Run final clean-install gates, audit/outdated review, production smoke; record exact results, version exceptions, and external-service limitations.
 - [ ] Open final stacked PR and provide all links and approval/merge ordering. Do not merge.
 
 ## Validation log
@@ -94,3 +94,14 @@ Implementation results are appended per task. Live Yahoo/VeraCash availability, 
 - `npm ci`, `npm run check`, `npm run test:integration`, and `npm run test:unit` passed. **98 tests: 64 integration / 34 unit**, six suites. **100% statements/lines/functions, 95.55% branches** for measured application code. Main bootstrap is excluded from Jest coverage and explicitly smoke-checked as compiled code; cookie provisioning is an opt-in live operational utility, not a test target.
 - Enforced 90% global coverage gates plus stricter service/lifecycle gates. Tests use synthetic provider documents and an injected Chromium adapter, not live sites or full E2E.
 - Operational checks with real Chromium passed: local data URL navigation, selector wait, HTML extraction, zero remaining browser contexts; compiled production root returns HTTP 200; SIGTERM shutdown completes. Audits unchanged: zero production findings and zero full-tree high/critical findings.
+
+### Task 4 validation so far
+
+- `npm ci`, `npm run check` (98 tests and coverage gates), `npm ls --depth=0`, and production audit passed on Node 24.22.2 / npm 11.6.2. `.npmrc` now rejects unsupported runtime engines during installation.
+- `npm outdated --json` reports only the documented TypeScript 7 / Node 26 type exceptions; no retained dependency is behind its compatible wanted version.
+- `actionlint` **1.7.12** validates `.github/workflows/ci.yml`. Actions use verified current stable releases pinned by full commit SHA, read-only repository permissions, no persisted checkout credentials, execution timeouts, and limited coverage retention.
+- Dependabot proposes grouped weekly Nest/tooling/compatible dependency updates and GitHub Action updates. TypeScript major and Node type major exclusions document compatibility decisions; no auto-merge workflow exists.
+- CI performs a production-only clean install after quality gates and verifies compiled imports. Financial-provider access, browser downloads, cookies and E2E tests are absent from CI.
+- Separate local production-only clean install: **135 packages**, **0 vulnerabilities**. Real compiled application/Chromium startup, HTTP 200 root and SIGTERM shutdown passed with no development dependencies. The development working directory was not pruned.
+- README/environment example and `docs/TESTING.md` / `docs/UPGRADING.md` now describe actual setup, access-control defaults, errors, cache units, testing strategy, audit exceptions, upgrade/approval sequencing and rollback.
+- Next: push this branch, verify the hosted workflow, then publish the final PR and record its link. No merges or deployments have been performed.
