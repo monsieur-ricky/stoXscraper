@@ -22,7 +22,7 @@
 
 ## Task 1 — Restore quality gates and establish regression baseline
 
-Status: COMPLETE. Branch: `improvements/update-project`. PR: ready to publish.
+Status: COMPLETE. Branch: `improvements/update-project`. PR: [#12](https://github.com/monsieur-ricky/stoXscraper/pull/12).
 
 - [x] Capture current lint, build, and test failures.
 - [x] Replace legacy ESLint config with flat config; make lint read-only; add format/typecheck/check scripts.
