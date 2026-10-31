@@ -23,6 +23,8 @@
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run build && npm run test:cov -- --runInBand",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "npm test -- --watch",
+    "test:integration": "npm test -- --testPathPatterns=integration.spec.ts --runInBand",
+    "test:unit": "npm test -- --testPathIgnorePatterns=integration.spec.ts --runInBand",
     "test:cov": "npm test -- --coverage",
     "test:debug": "node --experimental-vm-modules --inspect-brk node_modules/jest/bin/jest.js --runInBand"
   },
@@ -71,9 +73,30 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!main.ts"
     ],
     "coverageDirectory": "../coverage",
+    "coverageThreshold": {
+      "global": {
+        "statements": 90,
+        "branches": 90,
+        "functions": 90,
+        "lines": 90
+      },
+      "./src/asset/asset.service.ts": {
+        "statements": 95,
+        "branches": 90,
+        "functions": 100,
+        "lines": 95
+      },
+      "./src/utilities/playwright.service.ts": {
+        "statements": 95,
+        "branches": 85,
+        "functions": 100,
+        "lines": 95
+      }
+    },
     "testEnvironment": "node"
   }
 }

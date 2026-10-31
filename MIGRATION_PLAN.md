@@ -43,13 +43,13 @@ Status: COMPLETE. Branch: `improvements/update-project-dependencies` (stacked on
 
 ## Task 3 — Harden migrated behavior with testing-trophy coverage
 
-Status: PENDING. Branch: `improvements/update-project-regressions` (stacked on task 2). PR: pending.
+Status: COMPLETE. Branch: `improvements/update-project-regressions` (stacked on task 2). PR: ready to publish.
 
-- [ ] Validate cache configuration and upstream data; encode URL inputs and reject unsupported metals without changing valid endpoint responses.
-- [ ] Guarantee browser/context cleanup on success/failure and test lifecycle, cookies, and selector behavior.
-- [ ] Test real Nest HTTP routing, error mapping, caching and TTL, using an in-process server and mocked external browser adapter (integration, not E2E).
-- [ ] Add isolated middleware security tests and strict static checks; enforce meaningful coverage thresholds weighted toward integrations.
-- [ ] Validate, update this document, and open stacked PR.
+- [x] Validate cache configuration and upstream data; encode URL inputs and reject unsupported metals without changing valid endpoint responses.
+- [x] Guarantee browser/context cleanup on success/failure and test lifecycle, cookies, and selector behavior.
+- [x] Test real Nest HTTP routing, error mapping, caching and TTL, using an in-process server and mocked external browser adapter (integration, not E2E).
+- [x] Add isolated middleware security tests and strict static checks; enforce meaningful coverage thresholds weighted toward integrations.
+- [x] Validate, update this document; publish stacked PR immediately after committing.
 
 ## Task 4 — CI, contributor docs, and migration handoff
 
@@ -83,3 +83,14 @@ Implementation results are appended per task. Live Yahoo/VeraCash availability, 
 - Fresh lockfile and `npm ci` pass without `--force`, legacy peer dependencies, or overrides. `npm ls --depth=0` and all `npm run check` gates pass; 7 tests passed.
 - Real Chromium provisioned. Compiled `dist/main.js` starts, serves HTTP 200 with the existing greeting, and terminates on SIGTERM. No live Yahoo/VeraCash assertions or cookie setup performed.
 - `npm audit --omit=dev`: **0 vulnerabilities**. Full audit: **31 development-only findings (4 low, 27 moderate), 0 high/critical**. Root advisories: deepmerge <=4.3.1 (no patched stable release), glob <=14.0.1 (patched 14 is outside Jest's compatible range), minimatch <11.0.1 (patched 11 is outside ESLint/CLI compatible ranges). Track upstream patches; do not accept npm's suggested obsolete Jest/Nest downgrades or force unsupported transitive major overrides. CI will block any high/critical development finding and every production finding.
+
+### Task 3 results
+
+- Environment validation converts PORT and CACHE_TTL to finite integers, provides defaults, rejects invalid configuration at startup, and injects TTL asynchronously after config is loaded. CACHE_TTL is milliseconds; zero retains cache-manager's no-expiry semantics.
+- Financial requests encode search/ticker/crumb components independently. Valid responses retain their field names; uppercase metals normalize to lowercase. Unsupported inputs return 400; missing ticker results return 404; provider outages/challenges/malformed payloads return 502 without exposing URL/session secrets. Missing/ambiguous/invalid metal prices never become zero or NaN.
+- Browser launch is injected at the external boundary. Real PlaywrightService lifecycle, navigation, selector waiting, status handling and context cleanup are exercised through Nest modules. Every request context closes on success or failure, including failures before page creation. Removed stale hardcoded browser identity and ignored headless override.
+- Optional middleware remains disabled by default. When enabled, API keys fail closed and compare safely; domain restrictions parse exact hostnames instead of accepting substring-spoofed origins. Origin headers are not authentication.
+- Enabled strict TypeScript, unused-code checks, no-explicit-any, and promise-safety lint rules.
+- `npm ci`, `npm run check`, `npm run test:integration`, and `npm run test:unit` passed. **98 tests: 64 integration / 34 unit**, six suites. **100% statements/lines/functions, 95.55% branches** for measured application code. Main bootstrap is excluded from Jest coverage and explicitly smoke-checked as compiled code; cookie provisioning is an opt-in live operational utility, not a test target.
+- Enforced 90% global coverage gates plus stricter service/lifecycle gates. Tests use synthetic provider documents and an injected Chromium adapter, not live sites or full E2E.
+- Operational checks with real Chromium passed: local data URL navigation, selector wait, HTML extraction, zero remaining browser contexts; compiled production root returns HTTP 200; SIGTERM shutdown completes. Audits unchanged: zero production findings and zero full-tree high/critical findings.
