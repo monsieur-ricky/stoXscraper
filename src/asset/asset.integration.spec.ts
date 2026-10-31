@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpModule } from '@nestjs/axios';
 import { AssetController } from './asset.controller';
 import { AssetService } from './asset.service';
 import { PlaywrightService } from '../utilities/playwright.service';
@@ -18,7 +17,6 @@ describe('Asset controller / service / parser integration', () => {
   beforeEach(async () => {
     request.mockReset();
     module = await Test.createTestingModule({
-      imports: [HttpModule],
       controllers: [AssetController],
       providers: [
         AssetService,

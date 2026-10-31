@@ -32,14 +32,14 @@ Status: COMPLETE. Branch: `improvements/update-project`. PR: [#12](https://githu
 
 ## Task 2 — Upgrade framework, dependencies, and runtime
 
-Status: PENDING. Branch: `improvements/update-project-dependencies` (stacked on task 1). PR: pending.
+Status: COMPLETE. Branch: `improvements/update-project-dependencies` (stacked on task 1). PR: ready to publish.
 
-- [ ] Upgrade Nest runtime/CLI/testing and all retained packages to current compatible stable versions; regenerate lockfile without forced peer overrides.
-- [ ] Remove unused Axios/HTTP and mapped-types dependencies and redundant Cheerio type stub; add declared cache peers as needed.
-- [ ] Pin Node/npm expectations and compatible TypeScript; adapt module resolution/build configuration.
-- [ ] Fix production startup, relative imports, shutdown hooks; make browser provisioning and cookie consent explicit opt-in setup commands, never privileged startup side effects.
-- [ ] Verify clean install, peer tree, audit, all quality gates, and real local application startup with Chromium (no financial-provider assertions).
-- [ ] Update this document and open stacked PR.
+- [x] Upgrade Nest runtime/CLI/testing and all retained packages to current compatible stable versions; regenerate lockfile without forced peer overrides.
+- [x] Remove unused Axios/HTTP and mapped-types dependencies and redundant Cheerio type stub; add declared cache peers as needed.
+- [x] Pin Node/npm expectations and compatible TypeScript; adapt module resolution/build configuration.
+- [x] Fix production startup, relative imports, shutdown hooks; make browser provisioning and cookie consent explicit opt-in setup commands, never privileged startup side effects.
+- [x] Verify clean install, peer tree, audit, all quality gates, and real local application startup with Chromium (no financial-provider assertions).
+- [x] Update this document; publish stacked PR immediately after committing.
 
 ## Task 3 — Harden migrated behavior with testing-trophy coverage
 
@@ -72,3 +72,14 @@ Implementation results are appended per task. Live Yahoo/VeraCash availability, 
 - 7 tests passed, including 6 integration cases traversing controller → service → actual Cheerio parsing. Asset service line coverage: 97.53%; overall coverage is intentionally not gated until lifecycle/middleware/HTTP tests in task 3.
 - Dependency audit remains at the recorded baseline of 49 findings; dependency/security remediation belongs to task 2. No production dependencies upgraded in this step.
 - Applied consistent formatting to existing sources/docs/JSON so the new read-only formatting gate is reproducible.
+
+### Task 2 results (2026-11-01)
+
+- NestJS runtime/testing **12.3.2**, CLI **12.0.11**, schematics **12.0.12**, cache integration **12.0.2**, config **12.0.1**. All retained direct packages use current compatible stable releases.
+- Target **Node 24 LTS >=24.15**, npm 11. Validated using separately provisioned **Node 24.22.2**, npm 11.6.2; system Node/default configuration unchanged. `.nvmrc` / `.node-version` select 24.
+- Compatibility exceptions: **TypeScript 6.0.3** (Nest schematics peer requirement and parser/ts-jest support exclude latest TS 7); **@types/node 24.19.2** matches Node 24 rather than latest Node 26 types.
+- Reviewed [Nest 11→12 migration guide](https://docs.nestjs.com/migration-guide): retained CommonJS output with NodeNext resolution, explicit compiler types/root directory and isolated module transforms. Jest requires `--experimental-vm-modules` for Nest 12 ESM dependencies; expected Node experimental warning is not suppressed.
+- Removed unused Axios/HTTP, mapped-types, Cheerio type stub, ESLint/Prettier plugin, source-map-support, ts-node, ts-loader and direct tsconfig-paths dependencies. Cookie setup is plain ESM JavaScript with browser cleanup and restrictive new-file permissions.
+- Fresh lockfile and `npm ci` pass without `--force`, legacy peer dependencies, or overrides. `npm ls --depth=0` and all `npm run check` gates pass; 7 tests passed.
+- Real Chromium provisioned. Compiled `dist/main.js` starts, serves HTTP 200 with the existing greeting, and terminates on SIGTERM. No live Yahoo/VeraCash assertions or cookie setup performed.
+- `npm audit --omit=dev`: **0 vulnerabilities**. Full audit: **31 development-only findings (4 low, 27 moderate), 0 high/critical**. Root advisories: deepmerge <=4.3.1 (no patched stable release), glob <=14.0.1 (patched 14 is outside Jest's compatible range), minimatch <11.0.1 (patched 11 is outside ESLint/CLI compatible ranges). Track upstream patches; do not accept npm's suggested obsolete Jest/Nest downgrades or force unsupported transitive major overrides. CI will block any high/critical development finding and every production finding.

@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware, ForbiddenException } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
 @Injectable()
 export class ApiKeyMiddleware implements NestMiddleware {
