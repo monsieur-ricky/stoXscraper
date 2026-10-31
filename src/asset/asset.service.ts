@@ -1,10 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
 import { Symbol } from './entities/symbol.entity';
 import { Quote } from './entities/quote.entity';
 import { Profile } from './entities/profile.entity';
 
-import * as EXCHANGE_INFO from '../assets/data/exchange-info.json';
+import EXCHANGE_INFO from '../assets/data/exchange-info.json';
 import * as cheerio from 'cheerio';
 import { MetalQuote } from './entities/metal-quote.entity';
 import { PlaywrightService } from '../utilities/playwright.service';
@@ -28,10 +27,7 @@ export class AssetService {
   private readonly crumbUrl = `https://query1.${this.yahooFinanceDomain}/v1/test/getcrumb`;
   private readonly metalQuoteUrl = 'https://www.veracash.com';
 
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly playwrightService: PlaywrightService,
-  ) {}
+  constructor(private readonly playwrightService: PlaywrightService) {}
 
   async search(term: string): Promise<Symbol[]> {
     const url = `${this.searchUrl}?q=${term}`;

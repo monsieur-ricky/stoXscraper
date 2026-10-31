@@ -7,6 +7,7 @@ import globals from 'globals';
 export default [
   { ignores: ['dist/**', 'coverage/**', 'node_modules/**'] },
   js.configs.recommended,
+  { files: ['**/*.mjs'], languageOptions: { globals: globals.node } },
   {
     files: ['**/*.ts'],
     languageOptions: {

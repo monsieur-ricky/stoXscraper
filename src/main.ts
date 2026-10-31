@@ -6,10 +6,11 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
 
   app.enableCors();
+  app.enableShutdownHooks();
   // Uncomment the following lines to enable the middlewares
   // app.use(new DomainRestrictionMiddleware().use);
   // app.use(new ApiKeyMiddleware().use);
 
   await app.listen(port);
 }
-bootstrap();
+void bootstrap();
