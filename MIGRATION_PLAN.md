@@ -53,13 +53,13 @@ Status: COMPLETE. Branch: `improvements/update-project-regressions` (stacked on 
 
 ## Task 4 — CI, contributor docs, and migration handoff
 
-Status: COMPLETE. Branch: `improvements/update-project-ci` (stacked on task 3). PR: ready to publish.
+Status: COMPLETE. Branch: `improvements/update-project-ci` (stacked on task 3). PR: [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15).
 
 - [x] Add GitHub Actions for reproducible install, static checks, build, coverage and production dependency audit; no live scraping or E2E.
 - [x] Update README, environment example, testing strategy and upgrade/rollback instructions to match actual scripts and behavior.
 - [x] Add dependency maintenance automation and verify configuration.
 - [x] Run final clean-install gates, audit/outdated review, production smoke; record exact results, version exceptions, and external-service limitations.
-- [x] Hosted CI passed; publish final stacked PR immediately after committing and provide approval/merge ordering. Do not merge.
+- [x] Hosted CI passed; final stacked PR #15 published with approval/merge ordering. No merges performed.
 
 ## Validation log
 
@@ -109,6 +109,6 @@ Implementation results are appended per task. Live Yahoo/VeraCash availability, 
 
 ## Review handoff
 
-All four implementation tasks are complete. Review the stacked PRs in order: **#12 → #13 → #14 → final CI/docs PR**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
+All four implementation tasks are complete. Review the stacked PRs in order: **[#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15)**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
 
 Remaining limitations are explicit, not unfinished migration tasks: unsupported TypeScript 7 / Node 26 type upgrades are deferred; 31 low/moderate development-only audit findings await compatible upstream patches; live financial-provider consent/anti-bot availability is not guaranteed by the offline regression suite. Production dependencies have zero reported vulnerabilities.
