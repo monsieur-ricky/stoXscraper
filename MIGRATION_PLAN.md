@@ -53,13 +53,13 @@ Status: COMPLETE. Branch: `improvements/update-project-regressions` (stacked on 
 
 ## Task 4 — CI, contributor docs, and migration handoff
 
-Status: IN PROGRESS. Branch: `improvements/update-project-ci` (stacked on task 3). PR: pending.
+Status: COMPLETE. Branch: `improvements/update-project-ci` (stacked on task 3). PR: ready to publish.
 
 - [x] Add GitHub Actions for reproducible install, static checks, build, coverage and production dependency audit; no live scraping or E2E.
 - [x] Update README, environment example, testing strategy and upgrade/rollback instructions to match actual scripts and behavior.
 - [x] Add dependency maintenance automation and verify configuration.
 - [x] Run final clean-install gates, audit/outdated review, production smoke; record exact results, version exceptions, and external-service limitations.
-- [ ] Open final stacked PR and provide all links and approval/merge ordering. Do not merge.
+- [x] Hosted CI passed; publish final stacked PR immediately after committing and provide approval/merge ordering. Do not merge.
 
 ## Validation log
 
@@ -95,13 +95,20 @@ Implementation results are appended per task. Live Yahoo/VeraCash availability, 
 - Enforced 90% global coverage gates plus stricter service/lifecycle gates. Tests use synthetic provider documents and an injected Chromium adapter, not live sites or full E2E.
 - Operational checks with real Chromium passed: local data URL navigation, selector wait, HTML extraction, zero remaining browser contexts; compiled production root returns HTTP 200; SIGTERM shutdown completes. Audits unchanged: zero production findings and zero full-tree high/critical findings.
 
-### Task 4 validation so far
+### Task 4 results
 
 - `npm ci`, `npm run check` (98 tests and coverage gates), `npm ls --depth=0`, and production audit passed on Node 24.22.2 / npm 11.6.2. `.npmrc` now rejects unsupported runtime engines during installation.
 - `npm outdated --json` reports only the documented TypeScript 7 / Node 26 type exceptions; no retained dependency is behind its compatible wanted version.
-- `actionlint` **1.7.12** validates `.github/workflows/ci.yml`. Actions use verified current stable releases pinned by full commit SHA, read-only repository permissions, no persisted checkout credentials, execution timeouts, and limited coverage retention.
+- `actionlint` **1.7.12** validates `.github/workflows/ci.yml`; Dependabot configuration validates against SchemaStore's schema. Documented npm commands and local Markdown links resolve. Actions use verified current stable releases pinned by full commit SHA, read-only repository permissions, no persisted checkout credentials, execution timeouts, and limited coverage retention.
 - Dependabot proposes grouped weekly Nest/tooling/compatible dependency updates and GitHub Action updates. TypeScript major and Node type major exclusions document compatibility decisions; no auto-merge workflow exists.
 - CI performs a production-only clean install after quality gates and verifies compiled imports. Financial-provider access, browser downloads, cookies and E2E tests are absent from CI.
 - Separate local production-only clean install: **135 packages**, **0 vulnerabilities**. Real compiled application/Chromium startup, HTTP 200 root and SIGTERM shutdown passed with no development dependencies. The development working directory was not pruned.
 - README/environment example and `docs/TESTING.md` / `docs/UPGRADING.md` now describe actual setup, access-control defaults, errors, cache units, testing strategy, audit exceptions, upgrade/approval sequencing and rollback.
-- Next: push this branch, verify the hosted workflow, then publish the final PR and record its link. No merges or deployments have been performed.
+- Hosted Ubuntu CI [run 41252429413](https://github.com/monsieur-ricky/stoXscraper/actions/runs/41252429413) passed every step, including coverage upload, both security gates, and production-only compiled imports.
+- No merges or deployments performed. Local `main` and `origin/main` remain at `841d8a4c4b45ad2a8fe93aa54b5411aa78c7233c`.
+
+## Review handoff
+
+All four implementation tasks are complete. Review the stacked PRs in order: **#12 → #13 → #14 → final CI/docs PR**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
+
+Remaining limitations are explicit, not unfinished migration tasks: unsupported TypeScript 7 / Node 26 type upgrades are deferred; 31 low/moderate development-only audit findings await compatible upstream patches; live financial-provider consent/anti-bot availability is not guaranteed by the offline regression suite. Production dependencies have zero reported vulnerabilities.
