@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env.PORT || 3000;
+  const port = app.get(ConfigService).getOrThrow<number>('PORT');
 
   app.enableCors();
   app.enableShutdownHooks();
@@ -13,4 +14,7 @@ async function bootstrap() {
 
   await app.listen(port);
 }
-void bootstrap();
+void bootstrap().catch((error: unknown) => {
+  console.error('Application startup failed.', error);
+  process.exitCode = 1;
+});

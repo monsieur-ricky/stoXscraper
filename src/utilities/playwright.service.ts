@@ -1,108 +1,111 @@
 import {
+  Inject,
   Injectable,
   Logger,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
+import type {
+  Browser,
+  BrowserContext,
+  BrowserType,
+  Cookie,
+  Page,
+} from 'playwright';
 import * as fs from 'node:fs';
-import { RequestOptions } from '../asset/entities/request-options.entity';
+import type { RequestOptions } from '../asset/entities/request-options.entity';
+
+export const BROWSER_LAUNCHER = Symbol('BROWSER_LAUNCHER');
+
+function isCookie(value: unknown): value is Cookie {
+  if (typeof value !== 'object' || value === null) return false;
+  const cookie = value as Record<string, unknown>;
+  return (
+    ['name', 'value', 'domain', 'path'].every(
+      (key) => typeof cookie[key] === 'string',
+    ) &&
+    typeof cookie.expires === 'number' &&
+    Number.isFinite(cookie.expires) &&
+    typeof cookie.httpOnly === 'boolean' &&
+    typeof cookie.secure === 'boolean' &&
+    ['Strict', 'Lax', 'None'].includes(String(cookie.sameSite))
+  );
+}
 
 @Injectable()
 export class PlaywrightService implements OnModuleInit, OnModuleDestroy {
-  private browser: Browser;
-  private savedCookies: any[];
+  private browser?: Browser;
+  private savedCookies: Cookie[] = [];
+  private readonly logger = new Logger(PlaywrightService.name);
+
+  constructor(
+    @Inject(BROWSER_LAUNCHER)
+    private readonly launcher: Pick<BrowserType, 'launch'>,
+  ) {}
 
   async onModuleInit() {
     const cookiesPath = process.env.YAHOO_COOKIES_PATH || 'yahoo-cookies.json';
-
-    // Launch with stealth args (Safe for Yahoo, Required for Veracash)
-    this.browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--disable-blink-features=AutomationControlled', // Hides "navigator.webdriver"
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-      ],
-    });
-
     try {
       if (fs.existsSync(cookiesPath)) {
-        const cookiesFile = fs.readFileSync(cookiesPath, 'utf8');
-        this.savedCookies = JSON.parse(cookiesFile);
-      } else {
-        this.savedCookies = [];
+        const parsed: unknown = JSON.parse(
+          fs.readFileSync(cookiesPath, 'utf8'),
+        );
+        if (!Array.isArray(parsed) || !parsed.every(isCookie))
+          throw new Error('Invalid cookie format.');
+        this.savedCookies = parsed;
       }
-    } catch (e: unknown) {
-      Logger.error('Error loading yahoo-cookies.json.', e);
+    } catch {
+      this.logger.warn(
+        'Could not load saved Yahoo cookies; continuing without cookies.',
+      );
       this.savedCookies = [];
     }
+    this.browser = await this.launcher.launch({
+      headless: true,
+      args: ['--disable-blink-features=AutomationControlled'],
+    });
   }
 
-  async createPage(options: RequestOptions): Promise<Page> {
-    const userAgent =
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36';
-
+  async createPage(options: RequestOptions = {}): Promise<Page> {
+    if (!this.browser) throw new Error('Browser is not initialized.');
     const context: BrowserContext = await this.browser.newContext({
-      userAgent: userAgent, // Consistent User Agent for everyone
       viewport: { width: 1280, height: 800 },
     });
-
-    // Only add cookies if requested (Default to TRUE to keep Yahoo working)
-    if (options.useSavedCookies !== false && this.savedCookies.length > 0) {
-      await context.addCookies(this.savedCookies);
+    try {
+      if (options.useSavedCookies !== false && this.savedCookies.length > 0) {
+        await context.addCookies(this.savedCookies);
+      }
+      return await context.newPage();
+    } catch (error) {
+      await context.close();
+      throw error;
     }
-
-    return context.newPage();
   }
 
   async onModuleDestroy() {
-    if (this.browser) {
-      await this.browser.close();
-    }
+    await this.browser?.close();
+    this.browser = undefined;
   }
 
-  /**
-   * Universal browser request method
-   * @param url The URL to visit
-   * @param options Configuration options
-   */
   async makeBrowserRequest(
     url: string,
     options: RequestOptions = {},
   ): Promise<string> {
-    // Default useSavedCookies to true if not specified (Backward Compatibility)
-    const finalOptions = { useSavedCookies: true, ...options };
-
-    const page = await this.createPage(finalOptions);
-
+    const page = await this.createPage(options);
     try {
-      // 'domcontentloaded' is faster for Yahoo; Cloudflare needs patience
-      const waitState = finalOptions.waitForSelector
-        ? 'domcontentloaded'
-        : 'load';
-
-      await page.goto(url, { waitUntil: waitState });
-
-      // If a specific selector is provided (e.g. for VeraCash), wait for it
-      if (finalOptions.waitForSelector) {
-        try {
-          await page.waitForSelector(finalOptions.waitForSelector, {
-            timeout: 15000,
-          });
-        } catch {
-          Logger.warn(
-            `Timeout waiting for selector: ${finalOptions.waitForSelector} on ${url}`,
-          );
-        }
+      const response = await page.goto(url, {
+        waitUntil: options.waitForSelector ? 'domcontentloaded' : 'load',
+        timeout: 30000,
+      });
+      if (response && !response.ok())
+        throw new Error(`Provider returned HTTP ${response.status()}.`);
+      if (options.waitForSelector) {
+        await page.waitForSelector(options.waitForSelector, { timeout: 15000 });
       }
-
       return await page.content();
-    } catch (e: unknown) {
-      Logger.error(`Error requesting ${url}`, e);
-      throw e;
     } finally {
-      await page.close();
+      // Closing a page alone leaves its per-request context alive.
+      await page.context().close();
     }
   }
 }
