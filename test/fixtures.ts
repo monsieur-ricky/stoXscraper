@@ -47,7 +47,19 @@ export const profileHtml = `
 <a aria-label="phone number">123456</a>
 <a aria-label="website link" href="https://example.com">Website</a>`;
 
-export const metalHtml = `<div class="wpb_wrapper"><table>
-<tr><td>Gold Price per Ounce</td><td>€2,000.50</td><td>US$2,200.75</td><td>£1,700.25</td></tr>
-<tr><td>Silver Ounce(1oz)</td><td>€30.50</td><td>US$33.75</td><td>£25.25</td></tr>
-</table></div>`;
+export function metalQuoteData(
+  symbol: string,
+  currency: string,
+  now = Date.now(),
+) {
+  const prices: Record<string, Record<string, number>> = {
+    XAU: { USD: 2200.75, EUR: 2000.5, GBP: 1700.25 },
+    XAG: { USD: 33.75, EUR: 30.5, GBP: 25.25 },
+  };
+  return {
+    symbol,
+    currency,
+    price: prices[symbol]?.[currency],
+    updatedAt: new Date(now).toISOString(),
+  };
+}

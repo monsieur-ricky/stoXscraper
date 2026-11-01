@@ -1,5 +1,5 @@
 import type { Browser, BrowserType } from 'playwright';
-import { metalHtml, profileHtml, quoteHtml, searchHtml } from './fixtures';
+import { profileHtml, quoteHtml, searchHtml } from './fixtures';
 
 export function browserHarness() {
   const document = jest
@@ -9,7 +9,7 @@ export function browserHarness() {
       if (url.includes('/finance/search')) return searchHtml;
       if (url.includes('/finance/quote')) return quoteHtml;
       if (url.includes('/profile/')) return profileHtml;
-      return metalHtml;
+      return '<html><body>Local browser fixture</body></html>';
     });
   const navigation = jest
     .fn()

@@ -95,6 +95,12 @@
         "branches": 85,
         "functions": 100,
         "lines": 95
+      },
+      "./src/asset/gold-api.service.ts": {
+        "statements": 95,
+        "branches": 90,
+        "functions": 100,
+        "lines": 95
       }
     },
     "testEnvironment": "node"

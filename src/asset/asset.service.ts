@@ -12,6 +12,7 @@ import type { Quote } from './entities/quote.entity';
 import type { Profile } from './entities/profile.entity';
 import type { MetalQuote } from './entities/metal-quote.entity';
 import type { RequestOptions } from './entities/request-options.entity';
+import { GoldApiService } from './gold-api.service';
 
 function record(value: unknown): Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
@@ -39,7 +40,10 @@ function optionalNumber(value: unknown): number | undefined {
 
 @Injectable()
 export class AssetService {
-  constructor(private readonly playwrightService: PlaywrightService) {}
+  constructor(
+    private readonly playwrightService: PlaywrightService,
+    private readonly goldApiService: GoldApiService,
+  ) {}
 
   async search(term: string): Promise<Symbol[]> {
     const query = this.input(term, 200);
@@ -149,49 +153,7 @@ export class AssetService {
     if (metal !== 'gold' && metal !== 'silver') {
       throw new BadRequestException('Supported metals are gold and silver.');
     }
-    const html = await this.fetchHtml(
-      `https://www.veracash.com/${metal}-price-and-chart/`,
-      {
-        useSavedCookies: false,
-        waitForSelector: '.wpb_wrapper',
-      },
-    );
-    const $ = cheerio.load(html);
-    const label =
-      metal === 'gold' ? 'Gold Price per Ounce' : 'Silver Ounce(1oz)';
-    const row = $(`table tr td:contains("${label}")`).first().parent();
-    const price = (column: number) => {
-      const raw = row
-        .find(`td:nth-child(${column})`)
-        .first()
-        .text()
-        .replace(/US\$|[€£$\s]/g, '');
-      const value = raw.replaceAll(',', '');
-      // Missing markup must not become Number('') === 0; reject localized/garbled values.
-      if (
-        !/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(raw) ||
-        Number(value) <= 0
-      ) {
-        throw new BadGatewayException(
-          'Invalid financial provider metal price.',
-        );
-      }
-      return requiredNumber(Number(value));
-    };
-    const pricePerOunceEuro = price(2);
-    const pricePerOunceDollar = price(3);
-    const pricePerOuncePound = price(4);
-    const perGram = (ounce: number) =>
-      Math.round((ounce / 31.1035 + Number.EPSILON) * 100) / 100;
-    return {
-      metal,
-      pricePerOunceEuro,
-      pricePerOunceDollar,
-      pricePerOuncePound,
-      pricePerGramEuro: perGram(pricePerOunceEuro),
-      pricePerGramDollar: perGram(pricePerOunceDollar),
-      pricePerGramPound: perGram(pricePerOuncePound),
-    };
+    return this.goldApiService.getQuote(metal);
   }
 
   private input(value: string, maxLength: number): string {

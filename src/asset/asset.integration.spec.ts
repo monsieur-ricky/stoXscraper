@@ -2,24 +2,30 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AssetController } from './asset.controller';
 import { AssetService } from './asset.service';
 import { PlaywrightService } from '../utilities/playwright.service';
+import { profileHtml, quoteHtml, searchHtml } from '../../test/fixtures';
 import {
-  metalHtml,
-  profileHtml,
-  quoteHtml,
-  searchHtml,
-} from '../../test/fixtures';
+  GOLD_API_CLOCK,
+  GOLD_API_FETCH,
+  GoldApiService,
+} from './gold-api.service';
+import { goldApiHarness } from '../../test/gold-api-harness';
 
 describe('Asset controller / service / parser integration', () => {
   let module: TestingModule;
   let controller: AssetController;
   const request = jest.fn<Promise<string>, [string, unknown?]>();
+  let goldApi: ReturnType<typeof goldApiHarness>;
 
   beforeEach(async () => {
     request.mockReset();
+    goldApi = goldApiHarness();
     module = await Test.createTestingModule({
       controllers: [AssetController],
       providers: [
         AssetService,
+        GoldApiService,
+        { provide: GOLD_API_FETCH, useValue: goldApi.fetch },
+        { provide: GOLD_API_CLOCK, useValue: goldApi.clock },
         {
           provide: PlaywrightService,
           useValue: { makeBrowserRequest: request },
@@ -119,9 +125,8 @@ describe('Asset controller / service / parser integration', () => {
     ['gold', 2000.5, 2200.75, 1700.25],
     ['silver', 30.5, 33.75, 25.25],
   ] as const)(
-    'parses %s prices and converts troy ounces to grams',
+    'maps Gold-API %s spot prices and converts troy ounces to grams',
     async (metal, euro, dollar, pound) => {
-      request.mockResolvedValue(metalHtml);
       await expect(controller.metalQuote(metal)).resolves.toEqual({
         metal,
         pricePerOunceEuro: euro,
@@ -131,9 +136,12 @@ describe('Asset controller / service / parser integration', () => {
         pricePerGramDollar: Math.round((dollar / 31.1035) * 100) / 100,
         pricePerGramPound: Math.round((pound / 31.1035) * 100) / 100,
       });
-      expect(request).toHaveBeenCalledWith(
-        `https://www.veracash.com/${metal}-price-and-chart/`,
-        { useSavedCookies: false, waitForSelector: '.wpb_wrapper' },
+      expect(request).not.toHaveBeenCalled();
+      const symbol = metal === 'gold' ? 'XAU' : 'XAG';
+      expect(goldApi.fetch.mock.calls.map(([url]) => url)).toEqual(
+        ['USD', 'EUR', 'GBP'].map(
+          (currency) => `https://api.gold-api.com/price/${symbol}/${currency}`,
+        ),
       );
     },
   );

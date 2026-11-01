@@ -9,17 +9,25 @@ import { BROWSER_LAUNCHER } from './utilities/playwright.service';
 import { browserHarness } from '../test/browser-harness';
 import { quoteHtml } from '../test/fixtures';
 import { ConfigService } from '@nestjs/config';
+import { GOLD_API_CLOCK, GOLD_API_FETCH } from './asset/gold-api.service';
+import { goldApiHarness } from '../test/gold-api-harness';
 
 describe('Nest HTTP / browser adapter / parsing / cache integration (offline)', () => {
   let app: INestApplication;
   let server: Server;
   let browser: ReturnType<typeof browserHarness>;
+  let goldApi: ReturnType<typeof goldApiHarness>;
 
   beforeEach(async () => {
     browser = browserHarness();
+    goldApi = goldApiHarness();
     const module = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(BROWSER_LAUNCHER)
       .useValue(browser.launcher)
+      .overrideProvider(GOLD_API_FETCH)
+      .useValue(goldApi.fetch)
+      .overrideProvider(GOLD_API_CLOCK)
+      .useValue(goldApi.clock)
       .compile();
     app = module.createNestApplication({ logger: false });
     await app.init();
@@ -139,6 +147,7 @@ describe('Nest HTTP / browser adapter / parsing / cache integration (offline)', 
     async (metal) => {
       await request(server).get(`/asset/quote/metal/${metal}`).expect(400);
       expect(browser.navigation).not.toHaveBeenCalled();
+      expect(goldApi.fetch).not.toHaveBeenCalled();
     },
   );
 
@@ -217,23 +226,27 @@ describe('Nest HTTP / browser adapter / parsing / cache integration (offline)', 
     await request(server).get('/asset/profile/BAD').expect(502);
   });
 
-  it.each(['2.000,50', '1,2', '-1', 'Infinity'])(
-    'rejects ambiguous or nonpositive metal prices: %s',
-    async (price) => {
-      browser.document.mockResolvedValue(
-        `<table><tr><td>Gold Price per Ounce</td><td>€${price}</td></tr></table>`,
-      );
-      await request(server).get('/asset/quote/metal/gold').expect(502);
-    },
-  );
+  it('serves metal quotes without any browser navigation and caches them by URL', async () => {
+    await request(server).get('/asset/quote/metal/gold').expect(200);
+    await request(server).get('/asset/quote/metal/gold').expect(200);
+    expect(goldApi.fetch).toHaveBeenCalledTimes(3);
+    expect(browser.navigation).not.toHaveBeenCalled();
+  });
 
-  it.each([
-    '<html>Changed markup</html>',
-    '<table><tr><td>Gold Price per Ounce</td><td>€NaN</td></tr></table>',
-    '<table><tr><td>Gold Price per Ounce</td><td>€0</td></tr></table>',
-  ])('rejects missing/invalid metal prices: %s', async (html) => {
-    browser.document.mockResolvedValue(html);
-    await request(server).get('/asset/quote/metal/gold').expect(502);
+  it('maps Gold-API failures to 502 without caching errors or exposing upstream details', async () => {
+    goldApi.fetch.mockRejectedValueOnce(
+      new Error('secret internal upstream failure'),
+    );
+    const response = await request(server)
+      .get('/asset/quote/metal/gold')
+      .expect(502);
+    expect(response.body).toEqual({
+      statusCode: 502,
+      message: 'Gold-API spot price request failed.',
+      error: 'Bad Gateway',
+    });
+    await request(server).get('/asset/quote/metal/gold').expect(200);
+    expect(goldApi.fetch).toHaveBeenCalledTimes(4);
   });
 
   it('does not cache upstream failures and does not disclose URLs or crumbs', async () => {
@@ -254,13 +267,5 @@ describe('Nest HTTP / browser adapter / parsing / cache integration (offline)', 
       status: () => 429,
     });
     await request(server).get('/asset/search/rate-limited').expect(502);
-  });
-
-  it('rejects selector timeouts and still closes the request context', async () => {
-    browser.waitForSelector.mockRejectedValueOnce(new Error('Timeout'));
-    await request(server).get('/asset/quote/metal/gold').expect(502);
-    expect(browser.waitForSelector).toHaveBeenCalledWith('.wpb_wrapper', {
-      timeout: 15000,
-    });
   });
 });

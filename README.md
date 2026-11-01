@@ -1,8 +1,8 @@
 # stoXscraper
 
-NestJS API for financial asset search, quotes, profiles, and gold/silver prices. Created for [stoXevo](https://github.com/monsieur-ricky/stoXevo).
+NestJS API for financial asset search, quotes, profiles, and gold/silver **spot prices**. Created for [stoXevo](https://github.com/monsieur-ricky/stoXevo).
 
-**Web scraping is fragile.** Yahoo Finance and VeraCash may change markup, require consent, rate-limit requests, or block automation. Respect provider terms and use official financial data APIs for production-critical decisions. This project does not guarantee live provider availability or financial accuracy.
+Yahoo Finance assets are retrieved with Playwright/Cheerio; metal prices come from the documented [Gold-API.com](https://gold-api.com/) JSON API, not VeraCash or Yahoo futures. **Web scraping is fragile**, and any provider can change behavior or become unavailable. Respect provider terms and use suitably licensed financial data feeds for production-critical decisions. This project does not guarantee live provider availability or financial accuracy.
 
 ## Requirements
 
@@ -25,6 +25,8 @@ npm run browser:install
 On Linux, install Chromium's system libraries during machine/container provisioning with `npm run browser:install-deps` (may require administrator privileges). This is an explicit setup operation, not an application startup side effect.
 
 Prepare Yahoo session cookies with `npm run cookies:setup` before using Yahoo quote/profile endpoints. Yahoo can reject requests without a valid session with HTTP 401, which this API maps to 502. This command contacts Yahoo and may accept its consent prompt; run it only after reviewing the provider's terms and consent behavior. It loads `.env`, respects `YAHOO_COOKIES_PATH`, and saves sensitive cookies locally. Never commit cookies. Re-run explicitly if a Yahoo session expires, then **restart the app** so it loads the refreshed file; no cookie refresh is performed at startup.
+
+**Gold and silver need no cookie setup or provider API key.** Their requests use Node's native HTTPS fetch, not Chromium. The application still initializes Chromium at startup for its Yahoo endpoints, so keep the browser installation step above.
 
 ```bash
 npm start              # build and run
@@ -60,12 +62,23 @@ Default URL: `http://localhost:3000`. Responses preserve the existing field name
 curl http://localhost:3000/asset/quote/AAPL
 curl http://localhost:3000/asset/search/Apple
 curl http://localhost:3000/asset/quote/metal/gold
+curl http://localhost:3000/asset/quote/metal/silver
 ```
 
 - Invalid/empty/overlong inputs or unsupported metals: **400**.
 - An empty Yahoo quote result: **404**.
-- Network failures, upstream HTTP errors, bot challenges, malformed JSON, missing profiles or invalid price markup: **502**, never fabricated zero/NaN prices. Missing optional quote fields are omitted.
+- Network failures, upstream HTTP errors, bot challenges, malformed JSON, missing profiles, invalid metal quotes or stale provider timestamps: **502**, never fabricated zero/NaN prices. Missing optional quote fields are omitted.
 - Successful GET responses are cached per URL. Errors are not cached. Cache is in memory and is lost on restart; separate replicas have independent caches.
+
+### Gold and silver spot prices
+
+The existing `/asset/quote/metal/gold` and `/asset/quote/metal/silver` routes retain the same seven fields: `metal`, `pricePerOunceDollar`, `pricePerOunceEuro`, `pricePerOuncePound`, and the corresponding `pricePerGramDollar`, `pricePerGramEuro`, `pricePerGramPound` fields. Gold maps to `XAU` and silver to `XAG`; USD, EUR and GBP quotes come directly from Gold-API, and gram values use 31.1035 grams per troy ounce, rounded to two decimals.
+
+Gold-API advertises 30-second updates and free, keyless current-price access. We cache provider quotes for 30 seconds, deduplicate simultaneous requests and serialize upstream calls at least 1.1 seconds apart **per process**. Cold requests fetch three currencies, so they take at least about 2.2 seconds plus network time; concurrent gold/silver requests share that queue. Calls time out after 10 seconds each. Rate-limit responses cause a minimum 30-second cooldown honoring a longer `Retry-After`; no automatic retry or futures substitution occurs.
+
+Source timestamps are validated on receipt (at most five minutes old and one minute ahead of the local clock). Keep the host clock synchronized. `updatedAt` is the provider's fetch time, not necessarily a new market trade. The outer HTTP cache still follows `CACHE_TTL`: large values return older cached responses, and `0` caches indefinitely. Use an appropriate TTL (the default is 60 seconds), especially for prices.
+
+See [metal-provider details](docs/METALS.md) for provider terms, response mapping, failure behavior, and deployment considerations. Gold-API is an external service without a guaranteed SLA or independently verified accuracy; it is not a bullion dealer's executable buy/sell quote.
 
 ## Configuration
 
@@ -90,15 +103,15 @@ Invalid port/TTL values fail startup. Missing or malformed cookie files produce 
 
 ```bash
 npm run check             # lint, formatting, strict typecheck, build, coverage
-npm run test:integration  # 64 offline integration cases
-npm run test:unit         # 34 focused unit cases
-npm test -- --runInBand   # all 98 cases
+npm run test:integration  # offline provider/module/HTTP integrations
+npm run test:unit         # focused unit cases
+npm test -- --runInBand   # all cases
 npm run test:watch
 npm run lint:fix          # explicit opt-in source changes
 npm run format            # explicit opt-in formatting
 ```
 
-Tests follow the **testing trophy**: strict static checks, focused unit tests, and primarily integrations with actual Nest modules, HTTP routing, service logic, Cheerio parsing, caching, and browser lifecycle. Only external network/Chromium boundaries are replaced with deterministic adapters. No real browsers, credentials, live providers, or E2E tests are required for CI.
+Tests follow the **testing trophy**: strict static checks, focused unit tests, and primarily integrations with actual Nest modules, HTTP routing, service logic, Cheerio parsing, Gold-API JSON validation/conversion, caching, throttling and browser lifecycle. Only external HTTP/Chromium and time boundaries are replaced with deterministic adapters. No real browsers, credentials, live providers, or E2E tests are required for CI.
 
 Jest runs with `--experimental-vm-modules` to consume Nest 12's ESM packages; the Node experimental warning is expected. The application itself keeps CommonJS output using NodeNext resolution. See [the testing guide](docs/TESTING.md) for coverage gates and how to add regressions.
 

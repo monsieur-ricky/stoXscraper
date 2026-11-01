@@ -19,6 +19,8 @@
 7. Verify local `GET /`, shutdown signals and browser cleanup. Live-provider smoke requests are optional, manual and subject to provider terms; deterministic tests do not establish current live scraping availability.
 8. Submit a PR only after local gates pass. Require review/approval and green CI; do not auto-merge. No deployment or merge-to-main is part of the automated migration.
 
+Metal spot prices now use Gold-API's HTTPS JSON endpoints, not VeraCash HTML. No provider API key or Yahoo session migration is required for metals. Review [provider behavior, caching, throttling, timestamp checks and terms](METALS.md) before changing that integration. Browser provisioning and cookie setup remain necessary for Yahoo features. Keep the per-process provider request budget coordinated when deploying multiple replicas.
+
 ## Security audit exception (2026-11-01)
 
 Production audit: **zero findings**. Full dependency audit: **31 development-only findings (4 low, 27 moderate), no high/critical**. Three upstream roots propagate across the tooling tree:
@@ -33,6 +35,6 @@ These packages operate on repository/build/test inputs, not deployed scraper req
 
 ## Approval and rollback
 
-Review the four migration PRs in order: [#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → the final CI/docs PR listed in `MIGRATION_PLAN.md`. They are stacked against their predecessor. After owner approval, retarget subsequent PRs to `main` as appropriate; if squash-merging, rebuild/rebase each remaining diff carefully and rerun CI rather than merging stale cumulative diffs.
+Review the migration PRs in order: [#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15), then the Gold-API replacement PR listed under task 5 in `MIGRATION_PLAN.md`. They are stacked against their predecessor. After owner approval, retarget subsequent PRs to `main` as appropriate; if squash-merging, rebuild/rebase each remaining diff carefully and rerun CI rather than merging stale cumulative diffs.
 
 For deployment rollback, redeploy the previously approved immutable application artifact **with its matching lockfile, Node runtime and Playwright browser revision**. No database migrations are involved. In-memory cache may be discarded on restart; local cookies are secrets and must not be committed or bundled into public artifacts. If a code rollback is needed after approved merges, propose a reviewed revert PR; never force-reset `main`. The pre-migration reference is `841d8a4`, but it has known vulnerable dependencies and should not be used as a long-term deployment target.
