@@ -129,14 +129,14 @@ Status: TEST COMPLETED; live price retrieval BLOCKED by upstream Cloudflare prot
 
 ## Task 5 — Replace VeraCash with Gold-API spot prices
 
-Status: COMPLETE. Branch: `improvements/update-project-gold-api` (stacked on PR #15). PR: ready to publish.
+Status: COMPLETE. Branch: `improvements/update-project-gold-api` (stacked on PR #15). PR: [#16](https://github.com/monsieur-ricky/stoXscraper/pull/16).
 
 - [x] Replace VeraCash HTML parsing with direct HTTPS JSON requests to `api.gold-api.com`, with no extra packages, API keys, cookies or browser requests for metals.
 - [x] Preserve gold/silver endpoints and existing USD/EUR/GBP ounce/gram response fields; validate positive prices, symbol/currency identity and provider timestamps.
 - [x] Add a shared request queue (at most one upstream request per 1.1 seconds), minimum 30-second per-quote caching, concurrent-request deduplication and bounded network timeouts. Honor HTTP 429 `Retry-After` cooldowns; release unsuccessful response bodies. Keep tests offline by replacing only HTTP/time boundaries.
 - [x] Replace obsolete metal HTML fixtures/tests and cover both metals, all currencies, conversion, malformed/error/stale responses, retries, cache expiry and concurrency. Preserve Yahoo regressions; no E2E tests.
 - [x] Update README, provider documentation, testing/upgrade guides and this log.
-- [x] Pass clean installation, lint, formatting, typecheck, build, coverage and audits; verify live gold/silver via the project's own API with cURL. Publish a separate stacked PR immediately after committing; do not merge.
+- [x] Pass clean installation, lint, formatting, typecheck, build, coverage and audits; verify live gold/silver via the project's own API with cURL. Separate stacked PR #16 published; no merge performed.
 
 ### Task 5 results (2026-11-01)
 
@@ -151,6 +151,6 @@ Status: COMPLETE. Branch: `improvements/update-project-gold-api` (stacked on PR 
 
 ## Review handoff
 
-The original four implementation tasks and Gold-API follow-up are complete. Review the stacked PRs in order: **[#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15) → task 5 Gold-API PR**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
+The original four implementation tasks and Gold-API follow-up are complete. Review the stacked PRs in order: **[#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15) → [#16](https://github.com/monsieur-ricky/stoXscraper/pull/16)**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
 
 Remaining limitations are explicit, not unfinished migration tasks: unsupported TypeScript 7 / Node 26 type upgrades are deferred; 31 low/moderate development-only audit findings await compatible upstream patches; live financial-provider consent/anti-bot availability is not guaranteed by the offline regression suite. Production dependencies have zero reported vulnerabilities.
