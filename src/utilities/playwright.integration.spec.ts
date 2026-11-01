@@ -69,7 +69,7 @@ describe('Playwright provider lifecycle integration', () => {
     await service.makeBrowserRequest('https://finance.yahoo.com');
     expect(harness.addCookies).toHaveBeenCalledWith([cookie]);
     harness.addCookies.mockClear();
-    await service.makeBrowserRequest('https://www.veracash.com', {
+    await service.makeBrowserRequest('https://example.com', {
       useSavedCookies: false,
     });
     expect(harness.addCookies).not.toHaveBeenCalled();
@@ -121,7 +121,7 @@ describe('Playwright provider lifecycle integration', () => {
     harness.navigation.mockResolvedValueOnce(null);
     await expect(
       service.makeBrowserRequest('data:text/html,example'),
-    ).resolves.toContain('wpb_wrapper');
+    ).resolves.toContain('Local browser fixture');
     expect(harness.closeContext).toHaveBeenCalledTimes(1);
   });
 
@@ -129,5 +129,21 @@ describe('Playwright provider lifecycle integration', () => {
     harness.launch.mockRejectedValueOnce(new Error('Chromium unavailable'));
     await expect(module.init()).rejects.toThrow('Chromium unavailable');
     expect(harness.newContext).not.toHaveBeenCalled();
+  });
+
+  it('propagates selector timeouts and closes the request context', async () => {
+    await module.init();
+    harness.waitForSelector.mockRejectedValueOnce(
+      new Error('Selector timeout'),
+    );
+    await expect(
+      service.makeBrowserRequest('https://example.com', {
+        waitForSelector: '#quote',
+      }),
+    ).rejects.toThrow('Selector timeout');
+    expect(harness.waitForSelector).toHaveBeenCalledWith('#quote', {
+      timeout: 15000,
+    });
+    expect(harness.closeContext).toHaveBeenCalledTimes(1);
   });
 });
