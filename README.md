@@ -24,7 +24,7 @@ npm run browser:install
 
 On Linux, install Chromium's system libraries during machine/container provisioning with `npm run browser:install-deps` (may require administrator privileges). This is an explicit setup operation, not an application startup side effect.
 
-Optionally obtain Yahoo cookies with `npm run cookies:setup`. This contacts Yahoo and may accept its consent prompt; run it only after reviewing the provider's terms and consent behavior. It loads `.env`, respects `YAHOO_COOKIES_PATH`, and saves sensitive cookies locally. Never commit cookies. Re-run explicitly if a Yahoo session expires; no cookie refresh is performed at startup.
+Prepare Yahoo session cookies with `npm run cookies:setup` before using Yahoo quote/profile endpoints. Yahoo can reject requests without a valid session with HTTP 401, which this API maps to 502. This command contacts Yahoo and may accept its consent prompt; run it only after reviewing the provider's terms and consent behavior. It loads `.env`, respects `YAHOO_COOKIES_PATH`, and saves sensitive cookies locally. Never commit cookies. Re-run explicitly if a Yahoo session expires, then **restart the app** so it loads the refreshed file; no cookie refresh is performed at startup.
 
 ```bash
 npm start              # build and run
