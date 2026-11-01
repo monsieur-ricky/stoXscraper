@@ -107,6 +107,16 @@ Implementation results are appended per task. Live Yahoo/VeraCash availability, 
 - Hosted Ubuntu CI [run 41252429413](https://github.com/monsieur-ricky/stoXscraper/actions/runs/41252429413) passed every step, including coverage upload, both security gates, and production-only compiled imports.
 - No merges or deployments performed. Local `main` and `origin/main` remain at `841d8a4c4b45ad2a8fe93aa54b5411aa78c7233c`.
 
+## Follow-up — live AAPL endpoint verification (2026-11-01)
+
+Status: COMPLETE. Documentation update included in PR #15; no runtime code change required.
+
+- Initially, cURL against `/asset/quote/AAPL` returned 502. Direct diagnosis confirmed Yahoo quote HTTP 401 and zero saved cookies loaded, rather than an application startup/build failure.
+- Ran the project's existing **`npm run cookies:setup`** using the supported Node runtime, which created the local ignored `yahoo-cookies.json`. Restarted the compiled application to load that file.
+- Ran `curl --silent --show-error --include --fail-with-body --max-time 90 http://localhost:3000/asset/quote/AAPL` against the actual API with real Chromium and live Yahoo requests. Result: **HTTP 200 OK**, **X-Cache: MISS**, `symbol: AAPL`, `name: Apple Inc.`, `currency: USD`, **price: 344.63**, `changeValue: -4.28`, `changePercent: -1.22668`. Response time header: `Sun, 01 Nov 2026 09:39:13 GMT`. This is a point-in-time provider quote, not a guarantee of future availability.
+- No login was used. The setup script did not report clicking a consent prompt in this run. No cookie values or crumbs were logged or committed. A separate temporary diagnostic session was deleted; the standard setup file remains locally for subsequent use.
+- Stopped test application processes with SIGTERM. Clarified README setup instructions: Yahoo quote/profile requests need a valid session, and the application must restart after cookie refresh. This remains a manual live operational check, not an E2E suite or CI dependency.
+
 ## Review handoff
 
 All four implementation tasks are complete. Review the stacked PRs in order: **[#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15)**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
