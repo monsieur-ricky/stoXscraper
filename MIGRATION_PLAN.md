@@ -117,6 +117,16 @@ Status: COMPLETE. Documentation update included in PR #15; no runtime code chang
 - No login was used. The setup script did not report clicking a consent prompt in this run. No cookie values or crumbs were logged or committed. A separate temporary diagnostic session was deleted; the standard setup file remains locally for subsequent use.
 - Stopped test application processes with SIGTERM. Clarified README setup instructions: Yahoo quote/profile requests need a valid session, and the application must restart after cookie refresh. This remains a manual live operational check, not an E2E suite or CI dependency.
 
+## Follow-up — live gold and silver endpoint verification (2026-11-01)
+
+Status: TEST COMPLETED; live price retrieval BLOCKED by upstream Cloudflare protection. No runtime code change or protection bypass attempted.
+
+- Started the compiled production application with real Chromium and used cURL against `http://localhost:3001/asset/quote/metal/gold` and `http://localhost:3001/asset/quote/metal/silver`.
+- Both returned **HTTP 502 Bad Gateway**, `X-Cache: MISS`, and `{"message":"Financial provider request failed.","error":"Bad Gateway","statusCode":502}`. Response time headers: `Sun, 01 Nov 2026 09:50:09 GMT`.
+- Direct Playwright navigation confirmed **HTTP 403**, `server: cloudflare`, and page title **Just a moment...** at both `https://www.veracash.com/gold-price-and-chart/` and `https://www.veracash.com/silver-price-and-chart/`. The expected `.wpb_wrapper` selector was absent.
+- No real gold/silver price was obtained. The rejection occurs before price parsing; synthetic parser regression tests do not establish live provider availability. Yahoo cookie setup is unrelated because metal requests explicitly opt out of saved Yahoo cookies.
+- Stopped the test application with SIGTERM and closed diagnostic browser contexts. No cookies, credentials, fabricated prices, or generated artifacts were committed. A provider-supported data source/access method would be needed if this protection persists; changing providers is outside this requested live check.
+
 ## Review handoff
 
 All four implementation tasks are complete. Review the stacked PRs in order: **[#12](https://github.com/monsieur-ricky/stoXscraper/pull/12) → [#13](https://github.com/monsieur-ricky/stoXscraper/pull/13) → [#14](https://github.com/monsieur-ricky/stoXscraper/pull/14) → [#15](https://github.com/monsieur-ricky/stoXscraper/pull/15)**. Each targets its predecessor, starting with #12 against `main`. Owner approval is required before any merge. After approved merges, retarget/rebase remaining PRs carefully (especially after squash merges) and rerun CI. See `docs/UPGRADING.md` for rollback guidance.
